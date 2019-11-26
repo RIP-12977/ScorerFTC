@@ -1,17 +1,21 @@
 """
 Score Calculator for FTC --
   > Handles Exceptions(no format problems)
-  > Cannot handle penalties ATM
   > Cannot crosscheck parameters (i.e. program permits users to 
     enter how many stones placed on foundation in auto even when
     0 stones have been delivered across)
+  > Saves entered scores into text file 
 
 """
+
+import datetime as dt 
 
 # Initialization #
 import os 
 os.system('clear')
 print("FTC Skystone Scorer",end="\n\n")
+print("Input numbers/strings as requested")
+print("Enter 'exit' whenever to stop calculating score",end="\n\n")
 print("-"*25)
 
 # Variable Declaration #
@@ -19,6 +23,7 @@ autoStuff = {}
 teleStuff = {}
 autoScore = 0
 teleScore = 0
+penaltyScore = 0
 exit = False
 
 # Fill Methods / Input Validator #
@@ -53,6 +58,17 @@ def inputValid(*args):
       num2 = input("Enter x number: ")
     return int(num2)
   return int(args[0])
+def writeFile(string):
+  try:
+    f1 = open('scoreHistory.txt','a+')
+  except:
+    f1 = open('scoreHistory.txt',"w+")
+    print("Score History File Created!")
+  time = dt.datetime.now()
+  min = str(time.minute).zfill(2)
+  out = "{}-{}-{} @ {}:{} --> ".format(time.year,time.month,time.day,time.hour,min)
+  out += 'Auto: {} , TeleOp: {} , Penalty: {} --> Total Score: {}'
+  f1.write(out.format(autoScore,teleScore,penaltyScore,string) + "\n")
 
 
 '''
@@ -86,6 +102,7 @@ for x in autoStuff:
     print()
 print("\nFinal Auto Score: " + str(autoScore),end="\n\n")
 print("-"*25)
+exit = False 
 
 # teleOp loop # 
 print("Calculating TeleOp Points:",end="\n\n")
@@ -110,5 +127,14 @@ for x in teleStuff:
 print("\nFinal TeleOp Score: " + str(teleScore),end="\n\n")
 print("-"*25)
 
+# Penalty Loop #
+userIn = input("Were there any penalties against the other alliance? [y/n] ")
+if('y' in userIn.lower()):
+  penaltyScore = int(input("How many? "))
+print("\nFinal Penalty Added: " + str(penaltyScore),end="\n\n")
+print("-"*25)
+
 # Final Output #
-print("Final Combined Score: " + str(teleScore + autoScore),end="\n\n\n")
+finalScore = str(teleScore + autoScore + penaltyScore)
+print("Final Combined Score: " + finalScore,end="\n\n\n")
+writeFile(finalScore)
